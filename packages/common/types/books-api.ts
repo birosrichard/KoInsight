@@ -5,6 +5,7 @@ import { Genre } from './genre';
 import { PageStat } from './page-stat';
 
 type Stats = {
+  finished: boolean;
   last_open: number;
   total_read_time: number;
   total_pages: number;

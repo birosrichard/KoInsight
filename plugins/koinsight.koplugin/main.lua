@@ -150,7 +150,7 @@ function koinsight:performFullSync()
           UIManager:close(progress_info)
           if progress.total == 0 then
             UIManager:show(InfoMessage:new({
-              text = _("No books with annotations found in reading history."),
+              text = _("Statistics synced successfully.\nNo books with annotations found."),
               timeout = 3,
             }))
           else
@@ -164,6 +164,12 @@ function koinsight:performFullSync()
               timeout = 5,
             }))
           end
+        elseif progress.phase == "error" then
+          UIManager:close(progress_info)
+          UIManager:show(InfoMessage:new({
+            text = _("Sync failed: ") .. _(progress.message),
+            timeout = 5,
+          }))
         end
       end)
     end)

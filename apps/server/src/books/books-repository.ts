@@ -92,6 +92,7 @@ export class BooksRepository {
         const bookDevices = JSON.parse(book.book_devices) as BookDevice[];
 
         const totalPages = BooksService.getTotalPages(book, bookDevices);
+        const finished = BooksService.isFinished(bookDevices);
         const lastOpen = BooksService.getLastOpen(bookDevices);
         const totalReadTime = BooksService.getTotalReadTime(bookDevices);
         const totalReadPages = BooksService.getTotalReadPages(book, stats);
@@ -103,6 +104,7 @@ export class BooksRepository {
 
         return {
           ...book_props,
+          finished,
           genres: genres,
           device_data: bookDevices,
           total_pages: totalPages,

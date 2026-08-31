@@ -1,8 +1,12 @@
 .CalendarWeek {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  background-color: light-dark(var(--mantine-color-gray-2), var(--mantine-color-gray-8));
+  background-color: light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-6));
   text-align: center;
-  padding: 10px 0;
-  font-weight: bold;
+  padding: 9px 0;
+  border-bottom: 1px solid light-dark(var(--mantine-color-gray-4), var(--mantine-color-gray-7));
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }

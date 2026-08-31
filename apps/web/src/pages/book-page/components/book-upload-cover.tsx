@@ -1,9 +1,9 @@
 import { Book } from '@koinsight/common/types';
-import { Button, FileInput, Flex, Title } from '@mantine/core';
+import { Button, FileInput, Flex, TextInput, Title } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { FormEvent, useState } from 'react';
 import { mutate } from 'swr';
-import { uploadBookCover } from '../../../api/books';
+import { uploadBookCover, uploadBookCoverFromUrl } from '../../../api/books';
 
 export type BookUploadCoverProps = {
   book: Book;
@@ -13,6 +13,7 @@ export type BookUploadCoverProps = {
 
 export function BookUploadCover({ book, showTitle = true, onChange }: BookUploadCoverProps) {
   const [file, setFile] = useState<File | null>(null);
+  const [url, setUrl] = useState('');
   const [message, setMessage] = useState('');
 
   const onSuccess = async () => {
@@ -21,7 +22,7 @@ export function BookUploadCover({ book, showTitle = true, onChange }: BookUpload
     await mutate(`books/${book.id}`);
     notifications.show({
       title: 'Success',
-      message: 'File uploaded and validated successfully.',
+      message: 'Cover updated successfully.',
       position: 'top-center',
       color: 'green',
     });
@@ -33,19 +34,24 @@ export function BookUploadCover({ book, showTitle = true, onChange }: BookUpload
   const handleUpload = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!file) {
+    if (!file && !url.trim()) {
       return;
     }
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const response = await uploadBookCover(book.id, formData);
+      let response: Response;
+      if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        response = await uploadBookCover(book.id, formData);
+      } else {
+        response = await uploadBookCoverFromUrl(book.id, url.trim());
+      }
 
       if (response.ok) {
         await onSuccess();
       } else {
-        setMessage('Failed to upload file.');
+        setMessage('Failed to update cover.');
       }
     } catch (error) {
       setMessage(`Error: ${error}`);
@@ -60,14 +66,30 @@ export function BookUploadCover({ book, showTitle = true, onChange }: BookUpload
         </Title>
       )}
       <form onSubmit={handleUpload} encType="multipart/form-data">
-        <Flex align="flex-end" gap="md">
+        <Flex align="flex-end" gap="md" wrap="wrap">
           <FileInput
             w={200}
+            label="File"
             placeholder="cover.png"
-            onChange={(e) => setFile(e)}
+            value={file}
+            onChange={(value) => {
+              setFile(value);
+              if (value) setUrl('');
+            }}
             accept=".png,.jpg,.jpeg,.gif"
           />
-          <Button type="submit" color="violet" disabled={file === null}>
+          <TextInput
+            w={360}
+            label="Image URL"
+            type="url"
+            placeholder="https://example.com/cover.jpg"
+            value={url}
+            onChange={(event) => {
+              setUrl(event.currentTarget.value);
+              if (event.currentTarget.value) setFile(null);
+            }}
+          />
+          <Button type="submit" color="violet" disabled={!file && !url.trim()}>
             Upload
           </Button>
         </Flex>

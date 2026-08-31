@@ -58,6 +58,27 @@ describe(BooksService.withData, () => {
     });
   });
 
+  describe('finished', () => {
+    it('uses the KOReader aggregate when detailed page stats are unavailable', async () => {
+      const book = await createBook(db);
+      await createBookDevice(db, book, device, { pages: 505, total_read_pages: 505 });
+
+      const result = await BooksService.withData(book);
+
+      expect(result.finished).toBe(true);
+      expect(result.unique_read_pages).toBe(0);
+    });
+
+    it('keeps partially read books unfinished', async () => {
+      const book = await createBook(db);
+      await createBookDevice(db, book, device, { pages: 1287, total_read_pages: 172 });
+
+      const result = await BooksService.withData(book);
+
+      expect(result.finished).toBe(false);
+    });
+  });
+
   describe('started_reading', () => {
     it('returns the earliest start time from stats', async () => {
       const book1 = await createBook(db, { title: 'Test Book 1' });

@@ -3,43 +3,165 @@
   width: 100%;
   margin: auto;
   overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: var(--mantine-radius-md);
+  background: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
 }
 
 .CalendarHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--mantine-spacing-xs);
+  min-height: 64px;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
   border-bottom: 1px solid var(--border-color);
 }
 
+.CalendarHeading {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-xs);
+  font-size: var(--mantine-font-size-lg);
+}
+
+.CalendarToday {
+  font-weight: 500;
+}
+
+.CalendarViewport {
+  min-width: 640px;
+  overflow: hidden;
+}
+
 .CalendarGrid {
+  display: flex;
+  flex-direction: column;
+}
+
+.CalendarWeekRow {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  position: relative;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-rows: 34px repeat(3, 24px) 22px;
+  min-height: 128px;
 }
 
 .CalendarDate {
-  padding: var(--mantine-spacing-xs);
-  border: 1px solid var(--border-color);
-  min-height: 150px;
+  grid-row: 1 / -1;
+  padding: 6px 8px;
+  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  background: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
+}
+
+.CalendarDate:nth-child(7) {
+  border-right: 0;
 }
 
 .CalendarDay {
-  text-align: left;
-  font-size: 1.1rem;
-  margin-bottom: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  height: 25px;
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+  border-radius: 50%;
 }
 
 .CalendarEvent {
-  text-align: center;
+  z-index: 1;
+  min-width: 0;
+  align-self: center;
+  height: 20px;
+  margin: 0 2px;
+  padding: 1px 7px;
+  border: 1px solid color-mix(in srgb, var(--calendar-event-color), black 16%);
+  border-radius: 4px;
+  background: var(--calendar-event-color);
+  color: var(--mantine-color-dark-9);
+  font-size: 12px;
+  line-height: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.CalendarEvent[data-color='0'] {
+  --calendar-event-color: var(--mantine-color-violet-2);
+}
+
+.CalendarEvent[data-color='1'] {
+  --calendar-event-color: var(--mantine-color-blue-2);
+}
+
+.CalendarEvent[data-color='2'] {
+  --calendar-event-color: var(--mantine-color-teal-2);
+}
+
+.CalendarEvent[data-color='3'] {
+  --calendar-event-color: var(--mantine-color-green-2);
+}
+
+.CalendarEvent[data-color='4'] {
+  --calendar-event-color: var(--mantine-color-yellow-2);
+}
+
+.CalendarEvent[data-color='5'] {
+  --calendar-event-color: var(--mantine-color-orange-2);
+}
+
+.CalendarEvent[data-color='6'] {
+  --calendar-event-color: var(--mantine-color-red-2);
+}
+
+.CalendarEvent[data-color='7'] {
+  --calendar-event-color: var(--mantine-color-grape-2);
+}
+
+.CalendarEvent > * {
+  display: block;
+  color: inherit;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.CalendarOverflow {
+  z-index: 1;
+  grid-row: 5;
+  align-self: center;
+  justify-self: end;
+  margin-right: 6px;
+  padding: 0 5px;
+  border-radius: var(--mantine-radius-sm);
+  background: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
+  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-3));
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .CalendarDateToday {
-  background-color: var(--mantine-color-koinsight-light);
-  font-weight: bold;
-  border: 1px solid var(--mantine-color-koinsight-light-color);
+  background: var(--mantine-color-koinsight-light);
+}
+
+.CalendarDateToday .CalendarDay {
+  background: var(--mantine-color-koinsight-filled);
+  color: var(--mantine-color-white);
 }
 
 .CalendarDateDisabled {
-  color: var(--mantine-color-gray-5);
+  background: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-8));
+}
+
+@media (max-width: 48em) {
+  .Calendar {
+    overflow-x: auto;
+  }
+
+  .CalendarHeader {
+    position: sticky;
+    left: 0;
+    min-width: 100%;
+  }
 }

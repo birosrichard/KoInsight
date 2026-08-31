@@ -158,7 +158,7 @@ function StatsCard({ book }: { book: BookWithData }): JSX.Element {
     book?.device_data.reduce((acc, device) => Math.max(acc, device.pages), 0) ||
     0;
 
-  const progressPages = getLatestReadPage(book);
+  const progressPages = book.finished ? bookPages : getLatestReadPage(book);
   const progressPercent = bookPages > 0 ? Math.round((progressPages / bookPages) * 100) : 0;
 
   const readingDays = book ? Object.keys(book.read_per_day).length : 0;
@@ -209,7 +209,7 @@ function StatsCard({ book }: { book: BookWithData }): JSX.Element {
               <IconClock size={18} style={{ flexShrink: 0, opacity: 0.6 }} />
               <Stack gap={0}>
                 <Text fz={11} c="dimmed" lh={1.2} tt="uppercase" fw="bold">
-                  Total read time
+                  Tracked time
                 </Text>
                 <Text size="md" fw={600}>
                   {formatSecondsToHumanReadable(book.total_read_time)}

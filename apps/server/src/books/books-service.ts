@@ -15,6 +15,12 @@ export class BooksService {
     return bookDevices.reduce((acc, device) => acc + device.total_read_time, 0);
   }
 
+  static isFinished(bookDevices: BookDevice[]): boolean {
+    return bookDevices.some(
+      (device) => device.pages > 0 && device.total_read_pages >= device.pages
+    );
+  }
+
   static getStartedReading(stats: PageStat[]): number {
     if (stats.length === 0) return 0;
     return stats.reduce((acc, stat) => Math.min(acc, stat.start_time), Infinity);
@@ -78,6 +84,7 @@ export class BooksService {
     const deletedCount = await AnnotationsRepository.getDeletedCount(book.md5);
 
     const total_pages = this.getTotalPages(book, bookDevices);
+    const finished = this.isFinished(bookDevices);
     const total_read_time = this.getTotalReadTime(bookDevices);
     const started_reading = this.getStartedReading(stats);
     const last_open = this.getLastOpen(bookDevices);
@@ -87,6 +94,7 @@ export class BooksService {
 
     const response: BookWithData = {
       ...book,
+      finished,
       stats,
       device_data: bookDevices,
       started_reading,
