@@ -48,6 +48,8 @@ function send_device_data(server_url, silent)
   if ok ~= true and not silent then
     render_response_message(response, "Error:", "Unable to register device.")
   end
+
+  return ok, response
 end
 
 function send_statistics_data(server_url, silent)
@@ -83,6 +85,16 @@ function send_statistics_data(server_url, silent)
       render_response_message(response, "Error:", "Data upload failed.")
     end
   end
+
+  return ok, response
+end
+
+local function report_sync_error(progress_callback, response, default_message)
+  local message = default_message
+  if type(response) == "table" and response.error then message = response.error end
+  if response == "network_error" then message = "Unable to reach server." end
+
+  if progress_callback then progress_callback({ phase = "error", message = message }) end
 end
 
 -- Send annotations for a specific book
@@ -253,14 +265,23 @@ function KoInsightUpload.syncAllBooks(server_url, progress_callback)
     return
   end
 
-  send_device_data(server_url, true) -- silent
+  local device_ok, device_response = send_device_data(server_url, true) -- silent
+  if not device_ok then
+    report_sync_error(progress_callback, device_response, "Unable to register device.")
+    return false
+  end
 
   -- First, sync all statistics data from the database
   -- This includes all reading progress (page_stat_data) and book metadata
-  send_statistics_data(server_url, true) -- silent
+  local stats_ok, stats_response = send_statistics_data(server_url, true) -- silent
+  if not stats_ok then
+    report_sync_error(progress_callback, stats_response, "Data upload failed.")
+    return false
+  end
 
   -- Then, sync all annotations for all books
   bulk_sync_all_books(server_url, progress_callback)
+  return true
 end
 
 return KoInsightUpload

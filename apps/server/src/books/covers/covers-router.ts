@@ -48,11 +48,6 @@ const upload = multer({
 router.post(
   '/',
   getBookById,
-  async (req: Request, _res: Response, next: NextFunction) => {
-    console.debug('Deleting existing cover for book', req.book!.md5);
-    await CoversService.deleteExisting(req.book!);
-    next();
-  },
   upload.single('file'),
   async (req: Request, res: Response, next: NextFunction) => {
     const book = req.book!;
@@ -81,5 +76,22 @@ router.post(
     }
   }
 );
+
+/** Downloads a book cover from a public image URL. */
+router.put('/', getBookById, async (req: Request, res: Response) => {
+  const url = req.body.url;
+  if (typeof url !== 'string' || !url.trim()) {
+    res.status(400).json({ error: 'Missing cover URL' });
+    return;
+  }
+
+  try {
+    await CoversService.uploadFromUrl(req.book!, url);
+    res.send({ message: 'Cover updated' });
+  } catch (error) {
+    console.log('Error downloading cover:', error);
+    res.status(400).send({ message: 'Unable to download cover' });
+  }
+});
 
 export { router as coversRouter };

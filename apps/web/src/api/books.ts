@@ -37,3 +37,11 @@ export function uploadBookCover(bookId: Book['id'], formData: FormData) {
     headers: { Accept: 'multipart/form-data' },
   });
 }
+
+export function uploadBookCoverFromUrl(bookId: Book['id'], url: string) {
+  return fetch(`${API_URL}/books/${bookId}/cover`, {
+    method: 'PUT',
+    body: JSON.stringify({ url }),
+    headers: { 'Content-Type': 'application/json' },
+  });
+}

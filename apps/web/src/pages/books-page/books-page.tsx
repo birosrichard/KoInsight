@@ -46,6 +46,7 @@ export function BooksPage(): JSX.Element {
   });
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [status, setStatus] = useState<'all' | 'finished' | 'unfinished'>('all');
   const [sortBy, setSortBy] = useLocalStorage<{
     key: keyof BookWithData;
     direction: 'asc' | 'desc';
@@ -59,7 +60,7 @@ export function BooksPage(): JSX.Element {
 
   const { data: books, isLoading, error } = useBooks({ showHidden: showHiddenBooks });
 
-  const visibleBooks =
+  const searchedBooks =
     searchTerm.length === 0
       ? (books ?? [])
       : (books ?? []).filter((book) =>
@@ -67,6 +68,10 @@ export function BooksPage(): JSX.Element {
             .map((value) => value?.toLowerCase())
             .some((v) => v?.includes(searchTerm.toLowerCase()))
         );
+
+  const visibleBooks = searchedBooks.filter(
+    (book) => status === 'all' || book.finished === (status === 'finished')
+  );
 
   const sortedBooks = visibleBooks.sort((a, b) => {
     const { key: sort, direction } = sortBy;
@@ -135,6 +140,18 @@ export function BooksPage(): JSX.Element {
               ) : null
             }
           />
+          <Select
+            aria-label="Reading status"
+            w={150}
+            value={status}
+            allowDeselect={false}
+            onChange={(value) => setStatus(value as typeof status)}
+            data={[
+              { label: 'All books', value: 'all' },
+              { label: 'Finished', value: 'finished' },
+              { label: 'Unfinished', value: 'unfinished' },
+            ]}
+          />
           <Tooltip label="Advanced filters" openDelay={1000} position="top" withArrow>
             <Button variant="default" onClick={openAdvancedFilters}>
               <IconFilter size={14} />
@@ -176,7 +193,7 @@ export function BooksPage(): JSX.Element {
                   { label: 'Added', value: 'id' },
                   { label: 'Title', value: 'title' },
                   { label: 'Author', value: 'authors' },
-                  { label: 'Read time', value: 'total_read_time' },
+                  { label: 'Tracked time', value: 'total_read_time' },
                   { label: 'Last open', value: 'last_open' },
                 ] as { label: string; value: keyof Book }[]
               }
