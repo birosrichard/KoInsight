@@ -85,11 +85,7 @@ export function App(): JSX.Element {
           </main>
         </div>
         <Text size="xs" ta="center" c="dimmed">
-          Made with <IconHeart size={10} /> by{' '}
-          <Anchor href="https://gar.dev" target="_blank">
-            gar.dev
-          </Anchor>
-          . {version}
+          {version}
         </Text>
       </ModalsProvider>
     </MantineProvider>

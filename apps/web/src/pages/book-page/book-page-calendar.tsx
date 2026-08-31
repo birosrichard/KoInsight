@@ -1,8 +1,10 @@
 import { BookWithData, PageStat } from '@koinsight/common/types';
+import { Tooltip } from '@mantine/core';
 import { startOfDay } from 'date-fns/startOfDay';
+import { sum } from 'ramda';
 import { JSX } from 'react';
 import { Calendar, CalendarEvent } from '../../components/calendar/calendar';
-import { CalendarBookDay } from '../../components/calendar/calendar-book-day';
+import { getDuration, shortDuration } from '../../utils/dates';
 
 type BookPageCalendarProps = {
   book: BookWithData;
@@ -13,21 +15,39 @@ type DayData = {
 };
 
 export function BookPageCalendar({ book }: BookPageCalendarProps): JSX.Element {
-  const calendarEvents = book.stats.reduce<Record<string, CalendarEvent<DayData>>>((acc, event) => {
+  const eventsByDay = new Map<string, CalendarEvent<DayData>>();
+
+  book.stats.forEach((event) => {
     const date = startOfDay(event.start_time);
     const key = date.toISOString();
-    acc[key] = acc[key] || { date, data: { events: [] } };
-    acc[key].data = acc[key]?.data?.events
-      ? { events: [...acc[key].data.events, event] }
-      : { events: [event] };
+    const existingEvent = eventsByDay.get(key);
 
-    return acc;
-  }, {});
+    eventsByDay.set(key, {
+      id: book.md5,
+      date,
+      title: book.title,
+      data: {
+        events: existingEvent ? [...existingEvent.data.events, event] : [event],
+      },
+    });
+  });
 
   return (
     <Calendar<DayData>
-      events={calendarEvents}
-      dayRenderer={(data) => <CalendarBookDay book={book} data={data} />}
+      events={Array.from(eventsByDay.values())}
+      eventRenderer={(spanEvents) => {
+        const readingTime = shortDuration(
+          getDuration(
+            sum(spanEvents.flatMap(({ data }) => data.events.map(({ duration }) => duration)))
+          )
+        );
+
+        return (
+          <Tooltip label={`${readingTime} read`} openDelay={300}>
+            <span>{book.title}</span>
+          </Tooltip>
+        );
+      }}
     />
   );
 }
