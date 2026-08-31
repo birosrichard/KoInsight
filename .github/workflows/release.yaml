@@ -53,3 +53,11 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Smoke test image
+        env:
+          IMAGE: ghcr.io/birosrichard/koinsight:${{ steps.meta.outputs.version }}
+        run: |
+          trap 'docker rm -f koinsight-smoke >/dev/null 2>&1 || true' EXIT
+          docker run -d --name koinsight-smoke -e HOSTNAME=0.0.0.0 -p 127.0.0.1:3000:3000 "$IMAGE"
+          curl --retry 10 --retry-all-errors --retry-delay 1 --max-time 2 -fsS http://127.0.0.1:3000/ >/dev/null
